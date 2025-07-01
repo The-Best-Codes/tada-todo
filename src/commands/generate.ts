@@ -2,7 +2,8 @@ import { existsSync, mkdirSync, writeFileSync } from "fs";
 import kleur from "kleur";
 import { dirname, join } from "path";
 import type { CommandOptions } from "../types.js";
-import { findConfigFile, loadConfig } from "../utils/config.js";
+import { findConfigFile, loadConfig, saveConfig } from "../utils/config.js";
+import { generateHash } from "../utils/hash.js";
 
 export async function generateCommand(options: CommandOptions): Promise<void> {
   const currentDir = process.cwd();
@@ -51,9 +52,13 @@ export async function generateCommand(options: CommandOptions): Promise<void> {
 
     let generatedCount = 0;
     let skippedCount = 0;
+    let configUpdated = false;
 
     // Generate all saved files
-    for (const savedFile of config.savedFiles) {
+    for (let i = 0; i < config.savedFiles.length; i++) {
+      const savedFile = config.savedFiles[i];
+      if (!savedFile) continue;
+
       const targetDir = join(configDir, savedFile.dirRelativeToConf);
       const targetPath = join(targetDir, savedFile.name);
 
@@ -81,6 +86,15 @@ export async function generateCommand(options: CommandOptions): Promise<void> {
         ),
       );
       generatedCount++;
+
+      // Ensure hash is present in saved file
+      if (!savedFile.hash) {
+        config.savedFiles[i] = {
+          ...savedFile,
+          hash: generateHash(savedFile.content),
+        };
+        configUpdated = true;
+      }
     }
 
     console.log(
@@ -88,6 +102,12 @@ export async function generateCommand(options: CommandOptions): Promise<void> {
         `\nGeneration complete: ${generatedCount} files created, ${skippedCount} files skipped.`,
       ),
     );
+
+    // Save config if hashes were added
+    if (configUpdated) {
+      saveConfig(config, configPath, configType);
+      console.log(kleur.dim("Configuration updated with file hashes."));
+    }
   } catch (error) {
     console.log(kleur.red(`Error: ${error}`));
   }

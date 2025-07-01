@@ -9,6 +9,7 @@
   },
   "scripts": {
     "build": "bun build src/index.ts --outdir dist/ --minify --target node --format esm --packages external",
+    "prepublishOnly": "bun run build",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {

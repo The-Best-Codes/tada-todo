@@ -3,6 +3,7 @@ import kleur from "kleur";
 import { join, relative } from "path";
 import type { SavedFile, TodoConfig } from "../types.js";
 import { getReadableDate } from "./date.js";
+import { generateHash } from "./hash.js";
 
 export function generateTodoContent(): string {
   const date = getReadableDate();
@@ -47,6 +48,7 @@ export function createTodoFile(
       name: config.newFileName,
       dirRelativeToConf: relativePath || ".",
       content: content,
+      hash: generateHash(content),
     };
 
     if (!config.savedFiles) {

@@ -4,6 +4,8 @@ import { Command } from "commander";
 import { generateCommand } from "./commands/generate.js";
 import { initCommand } from "./commands/init.js";
 import { newCommand } from "./commands/new.js";
+import { pruneCommand } from "./commands/prune.js";
+import { updateCommand } from "./commands/update.js";
 
 const program = new Command();
 
@@ -35,5 +37,23 @@ program
   .option("--config <path>", "Path to the configuration file")
   .option("--type <type>", "Configuration file type (json|msgpack)", "auto")
   .action(generateCommand);
+
+program
+  .command("update")
+  .description("Update saved files in configuration from filesystem")
+  .argument("[file]", "Specific file to update (optional)")
+  .option("--config <path>", "Path to the configuration file")
+  .option("--type <type>", "Configuration file type (json|msgpack)", "auto")
+  .option("--scan", "Scan for TODO files not yet in configuration")
+  .action(updateCommand);
+
+program
+  .command("prune")
+  .description(
+    "Remove saved files from configuration that no longer exist on filesystem",
+  )
+  .option("--config <path>", "Path to the configuration file")
+  .option("--type <type>", "Configuration file type (json|msgpack)", "auto")
+  .action(pruneCommand);
 
 program.parse();

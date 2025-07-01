@@ -9,6 +9,7 @@ export interface SavedFile {
   name: string;
   dirRelativeToConf: string;
   content: string;
+  hash?: string;
 }
 
 export interface InitOptions {

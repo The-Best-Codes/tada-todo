@@ -2,3 +2,6 @@ node_modules
 dist
 
 test-repo
+
+# TODO.md files (`tada-todo generate` to generate on clone)
+TODO.md

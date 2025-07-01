@@ -33,11 +33,12 @@ export async function initCommand(options: InitOptions): Promise<void> {
     config = parseOptionsString(options.options);
   } else {
     // Interactive mode
-    config = await promptForConfig();
-    if (!config) {
+    const interactiveConfig = await promptForConfig();
+    if (!interactiveConfig) {
       cancel("Initialization cancelled.");
       return;
     }
+    config = interactiveConfig;
   }
 
   // Save the configuration
@@ -92,6 +93,13 @@ function parseOptionsString(optionsStr: string): TodoConfig {
   const pairs = optionsStr.split(",");
   for (const pair of pairs) {
     const [key, value] = pair.split("=").map((s) => s.trim());
+
+    if (!key || value === undefined) {
+      console.log(
+        kleur.yellow(`Warning: Invalid option format '${pair}' ignored`),
+      );
+      continue;
+    }
 
     switch (key) {
       case "newFileName":

@@ -88,7 +88,7 @@ tada-todo new --config path/to/config.json --type json
 **Generated TODO Template:**
 
 ```markdown
-## December 15, 2024
+## July 1, 2025
 
 - [ ] This is a task that needs done.
 - [x] This task is finished.
@@ -96,7 +96,7 @@ tada-todo new --config path/to/config.json --type json
 ---
 
 Add new items to the top of the file.
-Generated on December 15, 2024 by tada-todo CLI.
+Generated on July 1, 2025 by tada-todo CLI.
 ```
 
 ### `tada-todo generate`
@@ -176,7 +176,7 @@ Tada Todo creates either `tada-todo.json` (human-readable) or `tada-todo.b` (Mes
     {
       "name": "TODO.md",
       "dirRelativeToConf": "src/components",
-      "content": "## December 15, 2024\n\n- [ ] Fix the header component\n...",
+      "content": "## July 1, 2025\n\n- [ ] Fix the header component\n...",
       "hash": "a1b2c3d4e5f6..."
     }
   ]

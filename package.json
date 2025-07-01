@@ -12,9 +12,16 @@
   },
   "devDependencies": {
     "@types/bun": "^1.2.17",
+    "@types/node": "^24.0.9",
     "typescript": "^5.8.3"
   },
   "author": {
     "name": "BestCodes"
+  },
+  "dependencies": {
+    "@clack/prompts": "^0.11.0",
+    "@msgpack/msgpack": "^3.1.2",
+    "commander": "^14.0.0",
+    "kleur": "^4.1.5"
   }
 }

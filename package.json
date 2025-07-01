@@ -1,9 +1,20 @@
 {
   "name": "tada-todo",
-  "module": "index.ts",
+  "version": "1.0.0",
+  "description": "Tada Todo is a simple CLI to manage tasks in a repo",
+  "module": "dist/index.js",
   "type": "module",
+  "bin": {
+    "tada-todo": "dist/index.js"
+  },
+  "scripts": {
+    "build": "bun build src/index.ts --outdir dist/ --minify --target node --format esm --packages external"
+  },
   "devDependencies": {
     "@types/bun": "^1.2.17",
     "typescript": "^5.8.3"
+  },
+  "author": {
+    "name": "BestCodes"
   }
 }

@@ -1,14 +1,11 @@
 import { existsSync, readFileSync, writeFileSync } from "fs";
 import kleur from "kleur";
 import { dirname, join } from "path";
-import type { CommandOptions } from "../../types.js";
+import type { AddTaskOptions } from "../../types.js";
 import { findConfigFile, loadConfig } from "../../utils/config.js";
 import { getReadableDate } from "../../utils/date.js";
 import { updateFileInConfig } from "../../utils/update-config.js";
-
-interface AddTaskOptions extends CommandOptions {
-  interactive?: boolean;
-}
+import { addDateHeading, escapeRegExp, isDateHeading } from "./add-date.js";
 
 export async function addTaskCommand(
   task: string,
@@ -32,7 +29,7 @@ export async function addTaskCommand(
     let updatedCount = 0;
 
     for (const todoFile of todoFiles) {
-      if (await addTaskToDate(todoFile, task, targetDate)) {
+      if (await addTaskToDate(todoFile, task, targetDate, options)) {
         updatedCount++;
         // Update the file in configuration if applicable
         await updateFileInConfig(todoFile, {
@@ -121,6 +118,7 @@ async function addTaskToDate(
   filePath: string,
   task: string,
   date: string,
+  options: AddTaskOptions = {},
 ): Promise<boolean> {
   const content = readFileSync(filePath, "utf-8");
   const lines = content.split("\n");
@@ -130,47 +128,66 @@ async function addTaskToDate(
   let dateIndex = lines.findIndex((line) => dateHeadingPattern.test(line));
 
   if (dateIndex === -1) {
-    // Try to find similar dates using simple string matching
-    const availableDates = lines
-      .filter((line) => line.startsWith("## ") && isDateHeading(line))
-      .map((line) => line.substring(3).trim());
+    // If date doesn't exist, try to create it (unless disabled by flag)
+    if (options.noAutoCreateDate) {
+      // Try to find similar dates using simple string matching
+      const availableDates = lines
+        .filter((line) => line.startsWith("## ") && isDateHeading(line))
+        .map((line) => line.substring(3).trim());
 
-    if (availableDates.length > 0) {
-      const suggestion = findClosestDate(date, availableDates);
-      console.log(kleur.yellow(`Date "${date}" not found in ${filePath}.`));
-      if (suggestion) {
-        console.log(kleur.blue(`Did you mean "${suggestion}"?`));
+      if (availableDates.length > 0) {
+        const suggestion = findClosestDate(date, availableDates);
+        console.log(kleur.yellow(`Date "${date}" not found in ${filePath}.`));
+        if (suggestion) {
+          console.log(kleur.blue(`Did you mean "${suggestion}"?`));
+        }
+      } else {
+        console.log(kleur.yellow(`Date "${date}" not found in ${filePath}.`));
       }
-    }
 
-    return false;
+      return false;
+    } else {
+      // Auto-create the date heading
+      console.log(
+        kleur.blue(`Creating date heading "${date}" in ${filePath}.`),
+      );
+      await addDateHeading(filePath, date);
+
+      // Re-read the file to get the updated content
+      const updatedContent = readFileSync(filePath, "utf-8");
+      const updatedLines = updatedContent.split("\n");
+      dateIndex = updatedLines.findIndex((line) =>
+        dateHeadingPattern.test(line),
+      );
+
+      if (dateIndex === -1) {
+        console.log(
+          kleur.red(`Failed to create date heading "${date}" in ${filePath}.`),
+        );
+        return false;
+      }
+
+      // Update lines reference to the new content
+      lines.length = 0;
+      lines.push(...updatedLines);
+    }
   }
 
-  // Find where to insert the task (after the date heading but before the next heading or separator)
+  // Find where to insert the task (after the date heading)
   let insertIndex = dateIndex + 1;
 
-  // Skip empty lines after the date heading
-  while (insertIndex < lines.length) {
-    const currentLine = lines[insertIndex];
-    if (!currentLine || currentLine.trim() !== "") {
-      break;
-    }
+  // Ensure there's a blank line after the date heading
+  if (insertIndex < lines.length && lines[insertIndex]?.trim() !== "") {
+    // No blank line exists, insert one
+    lines.splice(insertIndex, 0, "");
     insertIndex++;
-  }
-
-  // Find the end of this date section
-  let endIndex = lines.length;
-  for (let i = insertIndex; i < lines.length; i++) {
-    const line = lines[i];
-    if (
-      line &&
-      (line.trim().startsWith("## ") ||
-        line.trim().startsWith("---") ||
-        line.trim().startsWith("----"))
-    ) {
-      endIndex = i;
-      break;
-    }
+  } else if (insertIndex < lines.length && lines[insertIndex]?.trim() === "") {
+    // Blank line exists, move past it
+    insertIndex++;
+  } else {
+    // We're at the end of the file, add a blank line
+    lines.splice(insertIndex, 0, "");
+    insertIndex++;
   }
 
   // Insert the task at the beginning of the task list for this date
@@ -179,23 +196,6 @@ async function addTaskToDate(
 
   writeFileSync(filePath, lines.join("\n"));
   return true;
-}
-
-function isDateHeading(line: string): boolean {
-  const heading = line.substring(3).trim();
-  // Simple check: if it contains month names or looks like a date
-  const datePatterns = [
-    /\b(January|February|March|April|May|June|July|August|September|October|November|December)\b/i,
-    /\b\d{1,2}[,\s]+\d{4}\b/,
-    /\b\d{4}[-/]\d{1,2}[-/]\d{1,2}\b/,
-    /\b\d{1,2}[-/]\d{1,2}[-/]\d{4}\b/,
-  ];
-
-  return datePatterns.some((pattern) => pattern.test(heading));
-}
-
-function escapeRegExp(string: string): string {
-  return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 function findClosestDate(

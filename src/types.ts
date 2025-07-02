@@ -21,3 +21,8 @@ export interface CommandOptions {
   config?: string;
   type?: "json" | "msgpack" | "auto";
 }
+
+export interface AddTaskOptions extends CommandOptions {
+  interactive?: boolean;
+  noAutoCreateDate?: boolean;
+}

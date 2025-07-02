@@ -77,6 +77,10 @@ manageCommand
   .description("Add a new task to a specific date (defaults to current date)")
   .option("--config <path>", "Path to the configuration file")
   .option("--type <type>", "Configuration file type (json|msgpack)", "auto")
+  .option(
+    "--no-auto-create-date",
+    "Disable auto-creation of date headings if they don't exist",
+  )
   .action(addTaskCommand);
 
 program.parse();

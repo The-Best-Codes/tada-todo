@@ -116,7 +116,7 @@ async function findTodoFiles(options: AddDateOptions): Promise<string[]> {
   return todoFiles;
 }
 
-async function addDateHeading(
+export async function addDateHeading(
   filePath: string,
   date: string,
 ): Promise<boolean> {
@@ -160,7 +160,7 @@ async function addDateHeading(
   return true;
 }
 
-function isDateHeading(line: string): boolean {
+export function isDateHeading(line: string): boolean {
   const heading = line.substring(3).trim();
   // Simple check: if it contains month names or looks like a date
   const datePatterns = [
@@ -173,6 +173,6 @@ function isDateHeading(line: string): boolean {
   return datePatterns.some((pattern) => pattern.test(heading));
 }
 
-function escapeRegExp(string: string): string {
+export function escapeRegExp(string: string): string {
   return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }

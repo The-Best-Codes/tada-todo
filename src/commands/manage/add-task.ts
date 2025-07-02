@@ -141,7 +141,6 @@ async function addTaskToDate(
       if (suggestion) {
         console.log(kleur.blue(`Did you mean "${suggestion}"?`));
       }
-      console.log(kleur.blue(`Available dates: ${availableDates.join(", ")}`));
     }
 
     return false;

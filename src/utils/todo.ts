@@ -13,7 +13,7 @@ export function generateTodoContent(): string {
 - [ ] This is a task that needs done.
 - [x] This task is finished.
 
-----
+---
 
 Add new items to the top of the file.
 Generated on ${date} by tada-todo CLI.

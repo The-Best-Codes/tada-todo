@@ -3,6 +3,8 @@
 import { Command } from "commander";
 import { generateCommand } from "./commands/generate.js";
 import { initCommand } from "./commands/init.js";
+import { addDateCommand } from "./commands/manage/add-date.js";
+import { addTaskCommand } from "./commands/manage/add-task.js";
 import { newCommand } from "./commands/new.js";
 import { pruneCommand } from "./commands/prune.js";
 import { updateCommand } from "./commands/update.js";
@@ -55,5 +57,26 @@ program
   .option("--config <path>", "Path to the configuration file")
   .option("--type <type>", "Configuration file type (json|msgpack)", "auto")
   .action(pruneCommand);
+
+// Manage command group
+const manageCommand = program
+  .command("manage")
+  .description("Manage TODO files and tasks");
+
+manageCommand
+  .command("add-date [date]")
+  .description(
+    "Add a new date heading to TODO files (defaults to current date)",
+  )
+  .option("--config <path>", "Path to the configuration file")
+  .option("--type <type>", "Configuration file type (json|msgpack)", "auto")
+  .action(addDateCommand);
+
+manageCommand
+  .command("add-task <task> [date]")
+  .description("Add a new task to a specific date (defaults to current date)")
+  .option("--config <path>", "Path to the configuration file")
+  .option("--type <type>", "Configuration file type (json|msgpack)", "auto")
+  .action(addTaskCommand);
 
 program.parse();

@@ -4,6 +4,7 @@ import { dirname, join } from "path";
 import type { CommandOptions } from "../../types.js";
 import { findConfigFile, loadConfig } from "../../utils/config.js";
 import { getReadableDate } from "../../utils/date.js";
+import { updateFileInConfig } from "../../utils/update-config.js";
 
 interface AddDateOptions extends CommandOptions {
   interactive?: boolean;
@@ -32,6 +33,12 @@ export async function addDateCommand(
     for (const todoFile of todoFiles) {
       if (await addDateHeading(todoFile, targetDate)) {
         updatedCount++;
+        // Update the file in configuration if applicable
+        await updateFileInConfig(todoFile, {
+          config: options.config,
+          type: options.type,
+          silent: true,
+        });
       }
     }
 

@@ -1,10 +1,10 @@
-import { existsSync, readFileSync } from "fs";
 import kleur from "kleur";
-import { dirname, join, relative } from "path";
+import { dirname, join } from "path";
 import type { CommandOptions, SavedFile } from "../types.js";
 import { findConfigFile, loadConfig, saveConfig } from "../utils/config.js";
 import { compareHashes, generateHash } from "../utils/hash.js";
 import { readFileContent, scanForTodoFiles } from "../utils/scanner.js";
+import { updateFileInConfig } from "../utils/update-config.js";
 
 interface UpdateOptions extends CommandOptions {
   scan?: boolean;
@@ -57,13 +57,13 @@ export async function updateCommand(
     }
 
     if (file) {
-      // Update specific file
-      hasChanges = await updateSpecificFile(
-        file,
-        config,
-        configDir,
-        currentDir,
-      );
+      // Update specific file using the shared utility
+      const filePath = join(currentDir, file);
+      hasChanges = await updateFileInConfig(filePath, {
+        config: configPath,
+        type: configType,
+        silent: false,
+      });
     } else {
       // Update all saved files
       hasChanges = await updateAllSavedFiles(config, configDir);
@@ -83,57 +83,6 @@ export async function updateCommand(
     }
   } catch (error) {
     console.log(kleur.red(`Error: ${error}`));
-  }
-}
-
-async function updateSpecificFile(
-  file: string,
-  config: any,
-  configDir: string,
-  currentDir: string,
-): Promise<boolean> {
-  const filePath = join(currentDir, file);
-
-  if (!existsSync(filePath)) {
-    console.log(kleur.red(`File not found: ${file}`));
-    return false;
-  }
-
-  const content = readFileSync(filePath, "utf-8");
-  const hash = generateHash(content);
-  const relativePath = relative(configDir, currentDir);
-
-  // Find existing saved file
-  const existingIndex = config.savedFiles.findIndex(
-    (f: SavedFile) =>
-      f.name === file && f.dirRelativeToConf === (relativePath || "."),
-  );
-
-  if (existingIndex >= 0) {
-    const existingFile = config.savedFiles[existingIndex];
-    if (!compareHashes(existingFile.hash, hash)) {
-      config.savedFiles[existingIndex] = {
-        ...existingFile,
-        content: content,
-        hash: hash,
-      };
-      console.log(kleur.green(`Updated: ${file}`));
-      return true;
-    } else {
-      console.log(kleur.blue(`No changes: ${file}`));
-      return false;
-    }
-  } else {
-    // Add new file
-    const savedFile: SavedFile = {
-      name: file,
-      dirRelativeToConf: relativePath || ".",
-      content: content,
-      hash: hash,
-    };
-    config.savedFiles.push(savedFile);
-    console.log(kleur.green(`Added: ${file}`));
-    return true;
   }
 }
 

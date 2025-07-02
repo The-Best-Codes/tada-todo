@@ -9,12 +9,14 @@ import { newCommand } from "./commands/new.js";
 import { pruneCommand } from "./commands/prune.js";
 import { updateCommand } from "./commands/update.js";
 
+import packageJson from "../package.json";
+
 const program = new Command();
 
 program
   .name("tada-todo")
   .description("A simple CLI to manage tasks in a repo")
-  .version("1.0.0");
+  .version(packageJson.version || "1.0.0");
 
 program
   .command("init")

@@ -9,6 +9,7 @@ A simple and powerful CLI tool to manage TODO files across your repositories. Bu
 - 🔄 **Sync capabilities** between filesystem and configuration
 - 🗂️ **Multiple storage formats** (JSON or MessagePack)
 - 🧹 **Cleanup tools** to maintain your TODO files
+- 📝 **Task management** with date-based organization and bulk operations
 - ⚡ **Fast and efficient** with hash-based change detection
 
 ## Installation
@@ -223,6 +224,78 @@ tada-todo manage add-task "Task" --config path/to/config.json
 - Auto-creates date headings if they don't exist (unless `--no-auto-create-date` is used)
 - Maintains proper spacing: date heading, blank line, then tasks
 - Tasks are added as `- [ ] Task description`
+
+### `tada-todo manage move-tasks [date]`
+
+Move all unresolved tasks from different dates to the current date or a specific date.
+
+```bash
+# Move all unresolved tasks to today's date
+tada-todo manage move-tasks
+
+# Move all unresolved tasks to a specific date
+tada-todo manage move-tasks "July 1, 2025"
+
+# Move tasks in all TODO files in configuration (global)
+tada-todo manage move-tasks --global
+
+# Move tasks to specific date in all files
+tada-todo manage move-tasks "July 1, 2025" --global
+
+# With custom config
+tada-todo manage move-tasks --config path/to/config.json
+```
+
+**Options:**
+
+- `--config <path>` - Path to the configuration file
+- `--type <type>` - Configuration file type (`json`|`msgpack`|`auto`)
+- `--global` - Move tasks in all TODO files in configuration (instead of just current directory)
+
+**Behavior:**
+
+- **Moves**: All unresolved tasks (those with `- [ ]`) from all date sections to the target date
+- **Keeps in place**: Completed tasks (`- [x]` or `- [X]`) and other content
+- **Creates target date**: If the target date heading doesn't exist, it will be created
+- **Cleans up empty sections**: Date sections with only unresolved tasks are removed after moving
+- **Preserves sections with completed tasks**: Date sections with completed tasks remain
+
+**Example Transformation:**
+
+Before:
+
+```markdown
+## January 15, 2025
+
+- [ ] Unresolved task 1
+- [x] Completed task
+
+## January 10, 2025
+
+- [ ] Unresolved task 2
+- [ ] Unresolved task 3
+
+## January 20, 2025
+
+- [x] Existing completed task
+```
+
+After running `move-tasks "January 20, 2025"`:
+
+```markdown
+## January 15, 2025
+
+- [x] Completed task
+
+## January 20, 2025
+
+- [ ] Unresolved task 1
+- [ ] Unresolved task 2
+- [ ] Unresolved task 3
+- [x] Existing completed task
+```
+
+Note: The January 10 section gets completely removed since it only had unresolved tasks.
 
 ## Configuration
 

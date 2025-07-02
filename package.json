@@ -1,6 +1,6 @@
 {
   "name": "tada-todo",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Tada Todo is a simple CLI to manage tasks in a repo",
   "module": "dist/index.js",
   "type": "module",

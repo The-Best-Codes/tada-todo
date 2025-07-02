@@ -70,6 +70,7 @@ manageCommand
   )
   .option("--config <path>", "Path to the configuration file")
   .option("--type <type>", "Configuration file type (json|msgpack)", "auto")
+  .option("--global", "Add date heading to all TODO files in configuration")
   .action(addDateCommand);
 
 manageCommand

@@ -1,6 +1,6 @@
 import { existsSync, readFileSync, writeFileSync } from "fs";
 import kleur from "kleur";
-import { dirname, join } from "path";
+import { join } from "path";
 import type { AddTaskOptions } from "../../types.js";
 import { findConfigFile, loadConfig } from "../../utils/config.js";
 import { getReadableDate } from "../../utils/date.js";
@@ -20,7 +20,7 @@ export async function addTaskCommand(
     if (todoFiles.length === 0) {
       console.log(
         kleur.yellow(
-          "No TODO files found. Run `tada-todo new` to create one first.",
+          "No TODO file found in current directory. Run `tada-todo new` to create one first.",
         ),
       );
       return;
@@ -43,13 +43,13 @@ export async function addTaskCommand(
     if (updatedCount > 0) {
       console.log(
         kleur.green(
-          `Added task "${task}" to ${updatedCount} TODO file(s) under date "${targetDate}".`,
+          `Added task "${task}" to TODO file under date "${targetDate}".`,
         ),
       );
     } else {
       console.log(
         kleur.yellow(
-          `Could not add task to any TODO files. Date "${targetDate}" may not exist.`,
+          `Could not add task to TODO file. Date "${targetDate}" may not exist.`,
         ),
       );
     }
@@ -88,27 +88,12 @@ async function findTodoFiles(options: AddTaskOptions): Promise<string[]> {
   }
 
   const config = loadConfig(configPath, configType);
-  const configDir = dirname(configPath);
   const todoFiles: string[] = [];
 
-  if (config.savedFiles && config.savedFiles.length > 0) {
-    // Use saved files from config
-    for (const savedFile of config.savedFiles) {
-      const filePath = join(
-        configDir,
-        savedFile.dirRelativeToConf,
-        savedFile.name,
-      );
-      if (existsSync(filePath)) {
-        todoFiles.push(filePath);
-      }
-    }
-  } else {
-    // Look for default TODO file in current directory
-    const defaultTodoPath = join(currentDir, config.newFileName || "TODO.md");
-    if (existsSync(defaultTodoPath)) {
-      todoFiles.push(defaultTodoPath);
-    }
+  // Always only look for TODO file in current directory (never global for add-task)
+  const defaultTodoPath = join(currentDir, config.newFileName || "TODO.md");
+  if (existsSync(defaultTodoPath)) {
+    todoFiles.push(defaultTodoPath);
   }
 
   return todoFiles;

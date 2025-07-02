@@ -1,14 +1,10 @@
 import { existsSync, readFileSync, writeFileSync } from "fs";
 import kleur from "kleur";
 import { dirname, join } from "path";
-import type { CommandOptions } from "../../types.js";
+import type { AddDateOptions } from "../../types.js";
 import { findConfigFile, loadConfig } from "../../utils/config.js";
 import { getReadableDate } from "../../utils/date.js";
 import { updateFileInConfig } from "../../utils/update-config.js";
-
-interface AddDateOptions extends CommandOptions {
-  interactive?: boolean;
-}
 
 export async function addDateCommand(
   date?: string,
@@ -20,11 +16,10 @@ export async function addDateCommand(
     const todoFiles = await findTodoFiles(options);
 
     if (todoFiles.length === 0) {
-      console.log(
-        kleur.yellow(
-          "No TODO files found. Run `tada-todo new` to create one first.",
-        ),
-      );
+      const message = options.global
+        ? "No TODO files found in configuration. Run `tada-todo new` to create one first."
+        : "No TODO file found in current directory. Run `tada-todo new` to create one first.";
+      console.log(kleur.yellow(message));
       return;
     }
 
@@ -43,17 +38,15 @@ export async function addDateCommand(
     }
 
     if (updatedCount > 0) {
-      console.log(
-        kleur.green(
-          `Added date heading "${targetDate}" to ${updatedCount} TODO file(s).`,
-        ),
-      );
+      const message = options.global
+        ? `Added date heading "${targetDate}" to ${updatedCount} TODO file(s).`
+        : `Added date heading "${targetDate}" to TODO file.`;
+      console.log(kleur.green(message));
     } else {
-      console.log(
-        kleur.blue(
-          `Date heading "${targetDate}" already exists in all TODO files.`,
-        ),
-      );
+      const message = options.global
+        ? `Date heading "${targetDate}" already exists in all TODO files.`
+        : `Date heading "${targetDate}" already exists in TODO file.`;
+      console.log(kleur.blue(message));
     }
   } catch (error) {
     console.log(kleur.red(`Error: ${error}`));
@@ -93,7 +86,8 @@ async function findTodoFiles(options: AddDateOptions): Promise<string[]> {
   const configDir = dirname(configPath);
   const todoFiles: string[] = [];
 
-  if (config.savedFiles && config.savedFiles.length > 0) {
+  // If global flag is set, use all saved files from config
+  if (options.global && config.savedFiles && config.savedFiles.length > 0) {
     // Use saved files from config
     for (const savedFile of config.savedFiles) {
       const filePath = join(
@@ -106,7 +100,7 @@ async function findTodoFiles(options: AddDateOptions): Promise<string[]> {
       }
     }
   } else {
-    // Look for default TODO file in current directory
+    // Only look for TODO file in current directory
     const defaultTodoPath = join(currentDir, config.newFileName || "TODO.md");
     if (existsSync(defaultTodoPath)) {
       todoFiles.push(defaultTodoPath);

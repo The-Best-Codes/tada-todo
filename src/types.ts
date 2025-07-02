@@ -26,3 +26,8 @@ export interface AddTaskOptions extends CommandOptions {
   interactive?: boolean;
   noAutoCreateDate?: boolean;
 }
+
+export interface AddDateOptions extends CommandOptions {
+  interactive?: boolean;
+  global?: boolean;
+}

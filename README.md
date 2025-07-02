@@ -163,6 +163,67 @@ tada-todo prune
 - Safety warnings and confirmations
 - Detailed preview of changes
 
+### `tada-todo manage add-date [date]`
+
+Add a new date heading to your TODO file in the current directory.
+
+```bash
+# Add today's date
+tada-todo manage add-date
+
+# Add a specific date
+tada-todo manage add-date "July 1, 2025"
+
+# Add to all TODO files in configuration (global)
+tada-todo manage add-date --global
+
+# With custom config
+tada-todo manage add-date --config path/to/config.json
+```
+
+**Options:**
+
+- `--config <path>` - Path to the configuration file
+- `--type <type>` - Configuration file type (`json`|`msgpack`|`auto`)
+- `--global` - Add date heading to all TODO files in configuration (instead of just current directory)
+
+**Behavior:**
+
+- By default, only operates on TODO files in the current directory
+- Use `--global` flag to operate on all saved files in configuration
+- Creates proper date heading format with spacing
+
+### `tada-todo manage add-task <task> [date]`
+
+Add a new task to a specific date in your TODO file in the current directory.
+
+```bash
+# Add task to today's date
+tada-todo manage add-task "Review pull requests"
+
+# Add task to a specific date
+tada-todo manage add-task "Meeting with team" "July 1, 2025"
+
+# Disable auto-creation of date headings
+tada-todo manage add-task "Important task" --no-auto-create-date
+
+# With custom config
+tada-todo manage add-task "Task" --config path/to/config.json
+```
+
+**Options:**
+
+- `--config <path>` - Path to the configuration file
+- `--type <type>` - Configuration file type (`json`|`msgpack`|`auto`)
+- `--no-auto-create-date` - Disable auto-creation of date headings if they don't exist
+
+**Behavior:**
+
+- Always operates only on TODO files in the current directory (never global)
+- Auto-creates date headings if they don't exist (unless `--no-auto-create-date` is used)
+- Maintains proper spacing: date heading, blank line, then tasks
+- Tasks are added as `- [ ] Task description`
+
 ## Configuration
 
 Tada Todo creates either `tada-todo.json` (human-readable) or `tada-todo.b` (MessagePack) files:

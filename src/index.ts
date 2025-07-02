@@ -5,6 +5,7 @@ import { generateCommand } from "./commands/generate.js";
 import { initCommand } from "./commands/init.js";
 import { addDateCommand } from "./commands/manage/add-date.js";
 import { addTaskCommand } from "./commands/manage/add-task.js";
+import { moveTasksCommand } from "./commands/manage/move-tasks.js";
 import { newCommand } from "./commands/new.js";
 import { pruneCommand } from "./commands/prune.js";
 import { updateCommand } from "./commands/update.js";
@@ -85,5 +86,15 @@ manageCommand
     "Disable auto-creation of date headings if they don't exist",
   )
   .action(addTaskCommand);
+
+manageCommand
+  .command("move-tasks [date]")
+  .description(
+    "Move all unresolved tasks from different dates to the current date or a specific date",
+  )
+  .option("--config <path>", "Path to the configuration file")
+  .option("--type <type>", "Configuration file type (json|msgpack)", "auto")
+  .option("--global", "Move tasks in all TODO files in configuration")
+  .action(moveTasksCommand);
 
 program.parse();

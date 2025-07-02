@@ -31,3 +31,7 @@ export interface AddDateOptions extends CommandOptions {
   interactive?: boolean;
   global?: boolean;
 }
+
+export interface MoveTasksOptions extends CommandOptions {
+  global?: boolean;
+}

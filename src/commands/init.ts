@@ -23,7 +23,7 @@ export async function initCommand(options: InitOptions): Promise<void> {
     config = {
       newFileName: "TODO.md",
       humanReadable: false,
-      saveInConfig: false,
+      saveInConfig: true,
     };
     console.log(
       kleur.dim("Using default configuration (non-interactive mode)"),
@@ -70,8 +70,8 @@ async function promptForConfig(): Promise<TodoConfig | null> {
   if (isCancel(humanReadable)) return null;
 
   const saveInConfig = await confirm({
-    message: "Save TODO files in config?",
-    initialValue: false,
+    message: "Save TODO files in config? (Recommended)",
+    initialValue: true,
   });
 
   if (isCancel(saveInConfig)) return null;
@@ -87,7 +87,7 @@ function parseOptionsString(optionsStr: string): TodoConfig {
   const config: TodoConfig = {
     newFileName: "TODO.md",
     humanReadable: false,
-    saveInConfig: false,
+    saveInConfig: true,
   };
 
   const pairs = optionsStr.split(",");
